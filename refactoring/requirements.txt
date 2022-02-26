@@ -1,0 +1,3 @@
+Django
+django-test-plus==2.2.0
+djangorestframework==3.12.4
