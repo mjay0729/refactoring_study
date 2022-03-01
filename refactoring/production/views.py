@@ -9,27 +9,31 @@ from .serializers import ProducerSerializer, ProvinceSerializer
 # Create your views here.
 class ProvinceView(APIView):
     def post(self, request):
-        result = ProvinceSerializer.create(self,request.data)
+        result = ProvinceSerializer.create(request.data)
         return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProvinceSerializer(result).data})
 
 class ProvinceDemandView(APIView):
-    def patch(self, request):
-        result = ProvinceSerializer.create(self,request.data)
-        return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProvinceSerializer(result).data})
+    def patch(self, request,province_code):
+        if ProvinceSerializer.validate_demand(request.data):
+            result = ProvinceSerializer.update_demand(province_code,request.data)
+            return Response(status=status.HTTP_200_OK, data ={"data" :  ProvinceSerializer(result).data})
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
 
 class ProvinceShortfallView(APIView):
     def get(self,request,province_code):
-        result =ProvinceSerializer.get_shortfall(self,province_code)
+        result =ProvinceSerializer.get_shortfall(province_code)
         return Response(status=status.HTTP_200_OK, data ={"data" :  result})
 
 class ProvinceProfitView(APIView):
     def get(self,request,province_code):
-        result =ProvinceSerializer.get_profit(self,province_code)
+        result =ProvinceSerializer.get_profit(province_code)
         return Response(status=status.HTTP_200_OK, data ={"data" :  result})
 
 class ProducerView(APIView):
     def post(self, request):
-        result = ProducerSerializer.create(self,request.data)
+        result = ProducerSerializer.create(request.data)
         return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProducerSerializer(result).data})
 
 
@@ -41,5 +45,5 @@ class ProducerListView(APIView):
 
 class ProducerProductionView(APIView):
     def patch(self, request, producer_name):
-        result = ProducerSerializer.update_production(self,producer_name, request.data)
+        result = ProducerSerializer.update_production(producer_name, request.data)
         return Response(status=status.HTTP_200_OK, data = {"data" : ProducerSerializer(result).data})

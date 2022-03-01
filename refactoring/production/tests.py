@@ -43,6 +43,11 @@ class CreateProducerDataTestCase(CreateProvinceDataTestCase):
         )
         self.response_201()
 
+        self.post("/producer"
+            , data=""
+        )
+        self.response_400()
+
 
         self.get("/producer/{}".format(self.province_data["code"]))
         self.response_200()
@@ -70,21 +75,63 @@ class GetChangeProductionSalesDataTestCase(CreateProducerDataTestCase):
 
     def test_shortfall(self):
         get_shortfall(self,-6)
-
+    #292
     def test_profit(self):
         get_profit(self,220)
 
 
 
 class NoneProducerDataTestCase(CreateProvinceDataTestCase):
-    def setUp(self):
-        super().setUp()
 
     def test_none_producer(self):
         get_shortfall(self,30)
         get_profit(self,0)
 
 
+class ZeroProvinceDemandValueDataTestCase(CreateProducerDataTestCase):
+    def setUp(self):
+        super().setUp()
+        patch_demand(self, 0)
+    def test_shortfall(self):
+        get_shortfall(self,-25)
+
+    def test_profit(self):
+        get_profit(self,0)
+
+
+class NagativeProvinceDemandValueDataTestCase(CreateProducerDataTestCase):
+    def setUp(self):
+        super().setUp()
+        patch_demand(self, -1)
+
+    def test_shortfall(self):
+        get_shortfall(self,-26)
+    #-10
+    def test_profit(self):
+        get_profit(self,12)
+
+
+class EmptyStringProvinceDemandValueDataTestCase(CreateProvinceDataTestCase):
+    def setUp(self):
+        super().setUp()
+        patch_demand(self, "")
+
+    def test_shortfall(self):
+        get_shortfall(self,30)
+
+    def test_profit(self):
+        get_profit(self,0)
+
+
+
+def patch_demand(self, demand):
+    self.patch("/province/demand/{}".format(self.province_data["code"])
+        ,data = dict(demand=demand)
+    )
+    if demand == "":
+        self.response_400()
+    else:
+        self.response_200()
 
 
 def get_shortfall(self, value):
