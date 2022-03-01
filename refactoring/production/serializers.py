@@ -11,12 +11,14 @@ class ProvinceSerializer(serializers.ModelSerializer):
         model = Province
         fields = '__all__'
     
-    def create(self, validated_data):
+    def create(self, **validated_data):
         province = Province.objects.create(
-            province_code = validated_data.get("province_code")
+            validated_data
         )
         return province
     
+
+
 class ProducerSerializer(serializers.ModelSerializer):
 
     province_id = ProvinceSerializer()
@@ -33,6 +35,5 @@ class ProducerSerializer(serializers.ModelSerializer):
                 , producer_cost = validated_data.get("cost")
                 , producer_production = validated_data.get("production")
                 )
+        self.__update_total_production(province,validated_data[])
         return producer
-
-
