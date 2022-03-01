@@ -11,7 +11,7 @@ class CreateProvinceDataTestCase(APITestCase):
             ,price = 20
         )
         self.post("/province"
-            ,data = province_data
+            ,data = self.province_data
         )
         self.response_201()
         response_data = self.last_response.json()["data"]["province_code"]
@@ -42,15 +42,16 @@ class CreateProvinceDataTestCase(APITestCase):
         self.response_201()
 
 
-        self.get("/producer/"+self.province_data.code)
+        self.get("/producer/"+self.province_data["code"])
         self.response_200()
         response_data =  len(self.last_response.json()["data"])
         self.assertEqual(response_data, 3)
 
 
 class GetShortFallDataTestCase(CreateProvinceDataTestCase):
-    def short_fall_test(self):
-        self.get("/producer/shortfall/"+self.province_data.code)
+
+    def test_shortfall(self):
+        self.get("/province/shortfall/"+self.province_data["code"])
         self.response_200()
-        response_data = self.last_response.json()["data"]["shorfall"]
+        response_data = self.last_response.json()["data"]["shortfall"]
         self.assertEqual(response_data, 5)

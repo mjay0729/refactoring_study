@@ -1,3 +1,4 @@
+from unittest import result
 from django.shortcuts import render
 from .models import Producer, Province
 from rest_framework.views import APIView
@@ -9,18 +10,22 @@ from .serializers import ProducerSerializer, ProvinceSerializer
 class ProvinceView(APIView):
     
     def post(self, request):
-        province = ProvinceSerializer.create(self,request.data)
-        return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProvinceSerializer(province).data})
+        result = ProvinceSerializer.create(self,request.data)
+        return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProvinceSerializer(result).data})
 
+class ProvinceShortfallView(APIView):
+    def get(self,request,province_code):
+        result =ProvinceSerializer.get_shortfall(self,province_code)
+        return Response(status=status.HTTP_200_OK, data ={"data" :  result})
 
 class ProducerView(APIView):
     def post(self, request):
-        ProducerSerializer.create(self,request.data)
-        return Response(status=status.HTTP_201_CREATED)
+        result = ProducerSerializer.create(self,request.data)
+        return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProducerSerializer(result).data})
 
 
 class ProducerListView(APIView):
     def get(self, request, province_code):
         province = Province.objects.get(province_code = province_code)
-        producer_list = Producer.objects.filter(province_id=province)
-        return Response(status=status.HTTP_200_OK, data ={"data" :  ProducerSerializer(producer_list, many=True).data})
+        result = Producer.objects.filter(province_id=province)
+        return Response(status=status.HTTP_200_OK, data ={"data" :  ProducerSerializer(result, many=True).data})
