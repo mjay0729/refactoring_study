@@ -9,6 +9,7 @@ class Province(models.Model):
     province_demand = models.IntegerField()
     province_price = models.IntegerField()
 
+
 class Producer(models.Model):
     producer_id = models.AutoField(primary_key=True)
     province_id = models.ForeignKey("Province", on_delete=models.CASCADE, db_column="province_id")

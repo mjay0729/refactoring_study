@@ -8,8 +8,12 @@ from .serializers import ProducerSerializer, ProvinceSerializer
 
 # Create your views here.
 class ProvinceView(APIView):
-    
     def post(self, request):
+        result = ProvinceSerializer.create(self,request.data)
+        return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProvinceSerializer(result).data})
+
+class ProvinceDemandView(APIView):
+    def patch(self, request):
         result = ProvinceSerializer.create(self,request.data)
         return Response(status=status.HTTP_201_CREATED, data ={"data" :  ProvinceSerializer(result).data})
 
@@ -34,3 +38,8 @@ class ProducerListView(APIView):
         province = Province.objects.get(province_code = province_code)
         result = Producer.objects.filter(province_id=province)
         return Response(status=status.HTTP_200_OK, data ={"data" :  ProducerSerializer(result, many=True).data})
+
+class ProducerProductionView(APIView):
+    def patch(self, request, producer_name):
+        result = ProducerSerializer.update_production(self,producer_name, request.data)
+        return Response(status=status.HTTP_200_OK, data = {"data" : ProducerSerializer(result).data})

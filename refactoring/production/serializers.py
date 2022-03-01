@@ -35,15 +35,17 @@ class ProvinceSerializer(serializers.ModelSerializer):
         producers = Producer.objects.filter(province_id = province).order_by('producer_cost')
         for producer in producers:
             contribution = remaining_demand if remaining_demand < producer.producer_production else producer.producer_production
-            demand_cost += contribution* producer.producer_cost
+            demand_cost += contribution * producer.producer_cost
         result = {
             "profit" : demand_value - demand_cost
         }
         return result
 
-class ProducerSerializer(serializers.ModelSerializer):
+    def update_demand(self, province_code,validated_data):
+        province = Province.objects.get(province_code=province_code)
+        province.province_demand = validated_data("demand")
 
-    province_id = ProvinceSerializer()
+class ProducerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Producer
@@ -57,9 +59,18 @@ class ProducerSerializer(serializers.ModelSerializer):
                 , producer_cost = validated_data.get("cost")
                 , producer_production = validated_data.get("production")
                 )
-        ProducerSerializer.update_total_production(province, int(validated_data.get("production")))
+        ProducerSerializer.update_total_production(province,producer)
         return producer
 
-    def update_total_production(province,production):
-        province.province_total_production += production
+    def update_total_production(province,producer, new_production=None):
+        province.province_total_production += int(producer.producer_production) if new_production is None else new_production - int(producer.producer_production)
         province.save()
+
+    def update_production(self, producer_name, validated_data):
+        producer = Producer.objects.get(producer_name=producer_name)
+        province = producer.province_id
+        ProducerSerializer.update_total_production(province,producer,int(validated_data.get("production")))
+        producer.producer_production = validated_data.get("production")
+        producer.save()
+        return producer
+

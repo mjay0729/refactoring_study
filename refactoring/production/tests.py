@@ -15,7 +15,10 @@ class CreateProvinceDataTestCase(APITestCase):
         self.response_201()
         response_data = self.last_response.json()["data"]["province_code"]
         self.assertEqual(response_data, "Asia")
-        
+
+class CreateProducerDataTestCase(CreateProvinceDataTestCase):
+    def setUp(self):
+        super().setUp()
         self.preduser_data_list = [
             dict(
                 province_code = "Asia", name="Byzantium", cost=10, production=9
@@ -41,22 +44,60 @@ class CreateProvinceDataTestCase(APITestCase):
         self.response_201()
 
 
-        self.get("/producer/"+self.province_data["code"])
+        self.get("/producer/{}".format(self.province_data["code"]))
         self.response_200()
         response_data =  len(self.last_response.json()["data"])
         self.assertEqual(response_data, 3)
 
-
-class GetSalesDataTestCase(CreateProvinceDataTestCase):
+class GetSalesDataTestCase(CreateProducerDataTestCase):
 
     def test_shortfall(self):
-        self.get("/province/shortfall/"+self.province_data["code"])
-        self.response_200()
-        response_data = self.last_response.json()["data"]["shortfall"]
-        self.assertEqual(response_data, 5)
+        get_shortfall(self,5)
 
     def test_profit(self):
-        self.get("/province/profit/"+self.province_data["code"])
+        get_profit(self,230)
+
+
+
+class GetChangeProductionSalesDataTestCase(CreateProducerDataTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.patch("/producer/production/{}".format(self.preduser_data_list[0]["name"])
+            ,data = dict(production=20)
+        )
         self.response_200()
-        response_data = self.last_response.json()["data"]["profit"]
-        self.assertEqual(response_data, 230)
+
+    def test_shortfall(self):
+        get_shortfall(self,-6)
+
+    def test_profit(self):
+        get_profit(self,220)
+
+
+
+class NoneProducerDataTestCase(CreateProvinceDataTestCase):
+    def setUp(self):
+        super().setUp()
+
+    def test_none_producer(self):
+        get_shortfall(self,30)
+        get_profit(self,0)
+
+
+
+
+def get_shortfall(self, value):
+    self.get("/province/shortfall/{}".format(self.province_data["code"]))
+    self.response_200()
+    response_data = self.last_response.json()["data"]["shortfall"]
+    self.assertEqual(response_data, value)
+
+def get_profit(self,value):
+    self.get("/province/profit/"+self.province_data["code"])
+    self.response_200()
+    response_data = self.last_response.json()["data"]["profit"]
+    self.assertEqual(response_data, value)
+
+
+
