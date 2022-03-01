@@ -4,7 +4,6 @@ from test_plus import APITestCase
 
 class CreateProvinceDataTestCase(APITestCase):
     def setUp(self):
-        
         self.province_data = dict(
             code = "Asia"
             ,demand = 30
@@ -17,27 +16,27 @@ class CreateProvinceDataTestCase(APITestCase):
         response_data = self.last_response.json()["data"]["province_code"]
         self.assertEqual(response_data, "Asia")
         
-        preduser_data_1 = dict(
+        self.preduser_data_list = [
+            dict(
                 province_code = "Asia", name="Byzantium", cost=10, production=9
-            )
-        preduser_data_2 = dict(
+            ),dict(
                 province_code = "Asia", name="Attalia", cost=12, production=10
-            )
-        preduser_data_3 = dict(
+            ),dict(
                 province_code = "Asia", name="Sinope", cost=10, production=6
             )
+        ]
 
         self.post("/producer"
-            , data=preduser_data_1
+            , data=self.preduser_data_list[0]
         )
         self.response_201()
 
         self.post("/producer"
-            , data=preduser_data_2
+            , data=self.preduser_data_list[1]
         )
         self.response_201()
         self.post("/producer"
-            , data= preduser_data_3
+            , data= self.preduser_data_list[2]
         )
         self.response_201()
 
@@ -48,10 +47,16 @@ class CreateProvinceDataTestCase(APITestCase):
         self.assertEqual(response_data, 3)
 
 
-class GetShortFallDataTestCase(CreateProvinceDataTestCase):
+class GetSalesDataTestCase(CreateProvinceDataTestCase):
 
     def test_shortfall(self):
         self.get("/province/shortfall/"+self.province_data["code"])
         self.response_200()
         response_data = self.last_response.json()["data"]["shortfall"]
         self.assertEqual(response_data, 5)
+
+    def test_profit(self):
+        self.get("/province/profit/"+self.province_data["code"])
+        self.response_200()
+        response_data = self.last_response.json()["data"]["profit"]
+        self.assertEqual(response_data, 230)

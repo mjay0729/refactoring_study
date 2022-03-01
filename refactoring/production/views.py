@@ -18,6 +18,11 @@ class ProvinceShortfallView(APIView):
         result =ProvinceSerializer.get_shortfall(self,province_code)
         return Response(status=status.HTTP_200_OK, data ={"data" :  result})
 
+class ProvinceProfitView(APIView):
+    def get(self,request,province_code):
+        result =ProvinceSerializer.get_profit(self,province_code)
+        return Response(status=status.HTTP_200_OK, data ={"data" :  result})
+
 class ProducerView(APIView):
     def post(self, request):
         result = ProducerSerializer.create(self,request.data)

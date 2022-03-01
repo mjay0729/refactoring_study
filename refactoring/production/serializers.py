@@ -26,6 +26,21 @@ class ProvinceSerializer(serializers.ModelSerializer):
         }
         return result
 
+    def get_profit(self, province_code):
+        province = Province.objects.get(province_code=province_code)
+        satisfied_demand = province.province_demand if province.province_demand < province.province_total_production else province.province_total_production
+        demand_value = satisfied_demand *  province.province_price
+        remaining_demand = province.province_demand
+        demand_cost = 0
+        producers = Producer.objects.filter(province_id = province).order_by('producer_cost')
+        for producer in producers:
+            contribution = remaining_demand if remaining_demand < producer.producer_production else producer.producer_production
+            demand_cost += contribution* producer.producer_cost
+        result = {
+            "profit" : demand_value - demand_cost
+        }
+        return result
+
 class ProducerSerializer(serializers.ModelSerializer):
 
     province_id = ProvinceSerializer()
