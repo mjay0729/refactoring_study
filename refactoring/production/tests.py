@@ -42,12 +42,12 @@ class CreateProducerDataTestCase(CreateProvinceDataTestCase):
             , data= self.preduser_data_list[2]
         )
         self.response_201()
-
+        """
         self.post("/producer"
             , data=""
         )
         self.response_400()
-
+        """
 
         self.get("/producer/{}".format(self.province_data["code"]))
         self.response_200()
